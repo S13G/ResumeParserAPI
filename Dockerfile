@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     libffi-dev
 
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip
@@ -23,4 +26,4 @@ COPY . .
 EXPOSE 5000
 
 # Command to run the application
-CMD ["python", "run.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
