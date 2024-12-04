@@ -45,7 +45,7 @@ def upload_cv():
         resume_parser = ResumeParser(file_path)
         parsed_data = resume_parser.parse_cv()
 
-        # Return the parsed data as JSON
+        # Return the parsed data as JSON for frontend
         return jsonify(parsed_data)
 
     return jsonify({"error": "Invalid file type"}), 400
