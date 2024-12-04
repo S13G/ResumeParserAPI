@@ -2,6 +2,7 @@ FROM python:3.9-alpine
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
+ENV FLASK_DEBUG=1
 
 # Create a folder for the app
 WORKDIR /resume_parser
