@@ -1,0 +1,11 @@
+services:
+  flask:
+    restart: always
+    build: .
+    container_name: resume_parser
+    ports:
+      - "5000:5000"
+    command: >
+      sh -c 'python run.py'
+    volumes:
+      - .:/resume_parser
