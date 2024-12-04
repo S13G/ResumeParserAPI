@@ -41,12 +41,19 @@ def upload_cv():
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
 
-        # Process the uploaded file using ResumeParser
-        resume_parser = ResumeParser(file_path)
-        parsed_data = resume_parser.parse_cv()
+        try:
+            # Process the uploaded file using ResumeParser
+            resume_parser = ResumeParser(file_path)
+            parsed_data = resume_parser.parse_cv()
 
-        # Return the parsed data as JSON for frontend
-        return jsonify(parsed_data)
+            # Send the parsed data as a response
+            response = jsonify(parsed_data)
+        finally:
+            # Delete the uploaded file after processing
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        return response
 
     return jsonify({"error": "Invalid file type"}), 400
 
