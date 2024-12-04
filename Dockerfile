@@ -1,20 +1,26 @@
-FROM python:3.9-alpine
+# Use an official Python image
+FROM python:3.9-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV FLASK_DEBUG=1
+# Set the working directory
+WORKDIR /app
 
-# Create a folder for the app
-WORKDIR /resume_parser
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    build-essential \
+    python3-dev \
+    libffi-dev
 
-# Copy the requirements.txt file into the workdir
-COPY requirements.txt ./
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Install the dependencies
-RUN pip3 install -r requirements.txt
+# Copy project files
+COPY . .
 
-# Copy the entire project into the workdir
-COPY . /resume_parser
+# Expose the application port
+EXPOSE 5000
 
-# Run the scraper
+# Command to run the application
 CMD ["python", "run.py"]
