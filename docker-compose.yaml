@@ -1,11 +1,31 @@
+version: '3.3'
 services:
-  flask:
-    restart: always
-    build: .
+  resume_parser:
     container_name: resume_parser
+    image: public.ecr.aws/slimprep-vertex/resume-parser-api:latest
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.resumeparser-http.entrypoints=web
+      - traefik.http.routers.resumeparser-http.rule=Host(`resumeparser.staging.helpwritingresumes.com`)
+      - traefik.http.routers.resumeparser-http.middlewares=resumeparser-redirect-to-https
+      # HTTPS router
+      - traefik.http.routers.resumeparser-https.entrypoints=web-secured
+      - traefik.http.routers.resumeparser-https.rule=Host(`resumeparser.staging.helpwritingresumes.com`)
+      - traefik.http.routers.resumeparser-https.tls=true
+      - traefik.http.routers.resumeparser-https.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.resumeparser-redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.resumeparser-headers.headers.customrequestheaders.Cookie=auth_token
     ports:
       - "5000:5000"
     command: >
       sh -c 'python run.py'
     volumes:
       - .:/resume_parser
+
+
+networks:
+  default:
+    external:
+      name: proxy
+    

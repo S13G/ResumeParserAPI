@@ -1,0 +1,63 @@
+name: Deploy to staging
+
+on:
+  push:
+    branches:
+      - docker  # Change to your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: "no"
+
+      - name: List working directory contents
+        run: ls -la
+      
+      - name: Log in to Amazon ECR
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+            registry-type: public
+    
+      - name: Build Docker image 
+        env:
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_URI }}
+        run: |
+          docker build -t $ECR_REPOSITORY:latest .
+          docker push $ECR_REPOSITORY:latest
+
+      - name: Connect to EC2 and copy docker compose file
+        uses: appleboy/scp-action@v0.1.7 # GitHub Action to SCP files to remote server
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }} # Public IP of your EC2 instance
+          username: ubuntu # Adjust based on your EC2 AMI
+          key: ${{ secrets.EC2_PEM }}
+          port: 22
+          source: "./docker-compose.yaml" # Path to your local Kubernetes manifest file
+          target: "~/apps/resume_parser" # Path on the EC2 instance where you want to copy the file
+
+      - name: Connect to EC2 and apply docker-compose file
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PEM }}
+          port: 22
+          script: |
+            # Pull the latest image
+            sudo docker-compose -f ~/apps/resume_parser/docker-compose.yaml pull
+
+            # Recreate the containers with the latest image
+            sudo docker-compose -f ~/apps/resume_parser/docker-compose.yaml up -d
+
