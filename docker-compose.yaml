@@ -17,7 +17,7 @@ services:
       - traefik.http.middlewares.resumeparser-redirect-to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.resumeparser-headers.headers.customrequestheaders.Cookie=auth_token
     ports:
-      - "5000:5000"
+      - "5200:5000"
     command: >
       sh -c 'python run.py'
     volumes:
