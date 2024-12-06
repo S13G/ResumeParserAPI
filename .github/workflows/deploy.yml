@@ -61,3 +61,6 @@ jobs:
             # Recreate the containers with the latest image
             sudo docker-compose -f ~/apps/resume_parser/docker-compose.yaml up -d
 
+            # cleanup docker environment
+            docker image prune -f
+
