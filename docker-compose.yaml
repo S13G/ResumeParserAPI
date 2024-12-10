@@ -3,9 +3,11 @@ services:
     restart: always
     build: .
     container_name: resume_parser
+    env_file:
+      - ./.env
     ports:
       - "5000:5000"
     command: >
-      sh -c 'python run.py'
+      gunicorn --bind 0.0.0.0:5000 'run:app'
     volumes:
       - .:/resume_parser

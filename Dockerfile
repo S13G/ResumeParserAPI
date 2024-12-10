@@ -1,8 +1,13 @@
 # Use an official Python image
 FROM python:3.9-slim
 
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
+ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
 # Set the working directory
-WORKDIR /app
+WORKDIR /resume_parser
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,19 +16,17 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     libffi-dev
 
-ENV FLASK_ENV=production
-ENV FLASK_DEBUG=0
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# Expose the port Flask will run on
+EXPOSE 5000
 
 # Copy project files
 COPY . .
 
-# Expose the application port
-EXPOSE 5000
-
-# Command to run the application
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
+# Set the default command to run the app with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
