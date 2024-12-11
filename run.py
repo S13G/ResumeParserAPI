@@ -20,6 +20,7 @@ app = create_app()
 # Define upload folder
 
 UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
+APP_VERSION = "1.0.1"
 
 
 def convert_pdf_to_docx(pdf_path):
@@ -32,7 +33,31 @@ def convert_pdf_to_docx(pdf_path):
     return docx_path
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/", methods=["GET"])
+def health_check():
+    """
+    Health check endpoint to verify the application is running.
+
+    Returns:
+        JSON response with status and additional system information
+    """
+    try:
+        # You can add more detailed health checks here
+        health_info = {
+            "status": "healthy",
+            "message": "Welcome to the Resume Parser API!",
+            "version": APP_VERSION,
+            "uptime": os.getpid(),  # Process ID can serve as a simple uptime indicator
+            "upload_folder_accessible": os.path.exists(UPLOAD_FOLDER),
+            "environment": os.getenv("FLASK_ENV", "Not set"),
+            "timestamp": os.getpid(),  # Using PID as a unique timestamp-like value
+        }
+        return jsonify(health_info), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+
+@app.route("/api/v1/upload", methods=["POST"])
 def upload_cv():
     # Ensure the upload folder exists
     if not os.path.exists(UPLOAD_FOLDER):
@@ -70,7 +95,7 @@ def upload_cv():
 
     try:
         response = json.loads(parsed_resume)
-    except JSONDecodeError:
+    except JSONDecodeError as e:
         return (
             jsonify(
                 {"error": "Error parsing the resume. Please try again or use another."}

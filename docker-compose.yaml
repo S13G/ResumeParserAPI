@@ -2,7 +2,7 @@ services:
   flask:
     restart: always
     build: .
-    container_name: resume_parser
+    container_name: parser
     env_file:
       - ./.env
     ports:
@@ -10,4 +10,4 @@ services:
     command: >
       gunicorn --bind 0.0.0.0:5000 'run:app'
     volumes:
-      - .:/resume_parser
+      - .:/parser
