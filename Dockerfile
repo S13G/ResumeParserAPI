@@ -7,7 +7,7 @@ ENV FLASK_DEBUG=0
 ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 # Set the working directory
-WORKDIR /resume_parser
+WORKDIR /parser
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
