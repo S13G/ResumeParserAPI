@@ -23,11 +23,9 @@ services:
     command: >
       gunicorn --bind 0.0.0.0:5000 'run:app'
     volumes:
-      - .:/resume_parser
-
+      - .:/parser
 
 networks:
   default:
     external:
       name: proxy
-    

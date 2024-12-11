@@ -39,18 +39,85 @@ The **Resume Parser API** is a Flask-based web application designed to parse res
 
 ## API Endpoints
 
-### `POST /upload`
+### `GET /`
+
+#### Request
+- **Description**: Health check endpoint to verify the application is running.
+
+#### Response
+- **Success** (`200 OK`):
+  - Returns a JSON response with status and additional system information.
+    ```
+      {
+        "environment": "production",
+        "message": "Welcome to the Resume Parser API!",
+        "status": "healthy",
+        "upload_folder_accessible": true,
+        "version": "1.0.1"
+      }
+      ```
+- **Error** (`500 Internal Server Error`):
+  - Returns a JSON response with error information.
+
+### `POST /api/v1/upload`
 
 #### Request
 - **Description**: Upload a resume in PDF format for parsing.
 - **Headers**:
   - `Content-Type: multipart/form-data`
 - **Body Parameters**:
-  - `file`: The resume file to upload (PDF format only).
+  - `file`: The resume file to upload (PDF and DOCX format only).
 
 #### Response
 - **Success** (`200 OK`):
   - Returns parsed resume data in JSON format.
+    ```
+      {
+        "resume_data": {
+          "awards": [],
+          "certifications": [
+              {
+                 "name": "",
+                 "code": "",
+                 "date": ""  
+              }
+          ],
+          "education": [
+              {
+                  "degree": "",
+                  "end_year": "",
+                  "institution": "",
+                  "start_year": ""
+              }
+          ],
+          "email": "@gmail.com",
+          "first_name": "Temitope",
+          "interests": [],
+          "job_title": "Flutter Developer",
+          "last_name": "Aladesiun",
+          "linkedin": "",
+          "profile_summary": "",
+          "skills": [
+              {
+                  "skill": "Programming Languages & Frameworks",
+                  "tools": "Flutter, Dart, Javascript, Typescript, HTML, CSS, ReactJS, VueJS"
+              }
+          ],
+          "work_experience": [
+              {
+                  "company": "",
+                  "company_description": "",
+                  "end_date": "",
+                  "job_description": "",
+                  "job_title": "",
+                  "location": "",
+                  "start_date": ""
+              },
+            
+          ]
+      }
+    }
+    ```
 - **Error** (`400 Bad Request` or `500 Internal Server Error`):
   - Returns an error message if the file is invalid or processing fails.
 
