@@ -47,10 +47,8 @@ def health_check():
             "status": "healthy",
             "message": "Welcome to the Resume Parser API!",
             "version": APP_VERSION,
-            "uptime": os.getpid(),  # Process ID can serve as a simple uptime indicator
             "upload_folder_accessible": os.path.exists(UPLOAD_FOLDER),
             "environment": os.getenv("FLASK_ENV", "Not set"),
-            "timestamp": os.getpid(),  # Using PID as a unique timestamp-like value
         }
         return jsonify(health_info), 200
     except Exception as e:
