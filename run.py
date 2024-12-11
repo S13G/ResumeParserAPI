@@ -1,24 +1,35 @@
+import json
 import os
+from json import JSONDecodeError
 
+from dotenv import load_dotenv
 from flask import request, jsonify
+from pdf2docx import Converter
+from pydantic import ValidationError
 from werkzeug.utils import secure_filename
 
 from parser import create_app
-from parser.entity_resume import ResumeParser
+from parser.entity_resume import parse_resume
+from parser.schema import FileMetadata
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = create_app()
 
 # Define upload folder
-UPLOAD_FOLDER = "uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["ALLOWED_EXTENSIONS"] = {"pdf"}
+
+UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
 
 
-def allowed_file(filename):
-    return (
-            "." in filename
-            and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
-    )
+def convert_pdf_to_docx(pdf_path):
+    """
+    Convert a PDF file to DOCX format using pdf2docx library.
+    """
+    docx_path = pdf_path.replace(".pdf", ".docx")
+    cv = Converter(pdf_path)
+    cv.convert(docx_path)  # Converts the whole document
+    return docx_path
 
 
 @app.route("/upload", methods=["POST"])
@@ -27,36 +38,52 @@ def upload_cv():
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
 
-    """Handles file upload and CV processing."""
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"}), 400
+    # Handle file upload and CV processing
+    file = request.files.get("file")
+    if not file or file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
 
-    file = request.files["file"]
+    # Check file size
+    file.seek(0, os.SEEK_END)  # Move to the end of the file to get the size
+    file_size = file.tell()
+    file.seek(0)  # Reset file pointer after checking size
 
-    if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+    try:
+        # Validate file metadata with Pydantic
+        FileMetadata(filename=file.filename, file_size=file_size)
+    except ValidationError:
+        return (
+            jsonify(
+                {
+                    "error": "Invalid file type or file size exceeds the maximum size limit"
+                }
+            ),
+            400,
+        )
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(file_path)
+    # Save the file after validation
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(file_path)
 
-        try:
-            # Process the uploaded file using ResumeParser
-            resume_parser = ResumeParser(file_path)
-            parsed_data = resume_parser.parse_cv()
+    parsed_resume = parse_resume(file_path)
 
-            # Send the parsed data as a response
-            response = jsonify(parsed_data)
-        finally:
-            # Delete the uploaded file after processing
-            if os.path.exists(file_path):
-                os.remove(file_path)
+    try:
+        response = json.loads(parsed_resume)
+    except JSONDecodeError:
+        return (
+            jsonify(
+                {"error": "Error parsing the resume. Please try again or use another."}
+            ),
+            400,
+        )
+    finally:
+        # Remove the uploaded file after processing
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
-        return response
-
-    return jsonify({"error": "Invalid file type"}), 400
+    return jsonify({"resume_data": response}), 200
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000)

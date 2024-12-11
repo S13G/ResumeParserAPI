@@ -16,10 +16,12 @@ services:
       - traefik.http.routers.resumeparser-https.tls.certresolver=mytlschallenge
       - traefik.http.middlewares.resumeparser-redirect-to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.resumeparser-headers.headers.customrequestheaders.Cookie=auth_token
+    env_file:
+      - ./.env
     ports:
       - "5200:5000"
     command: >
-      sh -c 'python run.py'
+      gunicorn --bind 0.0.0.0:5000 'run:app'
     volumes:
       - .:/resume_parser
 
