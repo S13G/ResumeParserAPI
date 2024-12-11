@@ -21,6 +21,9 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: "no"
 
+      - name: Add Environment Variable
+        run: echo ${{ secrets.ANTHROPIC_KEY }} > .env
+
       - name: List working directory contents
         run: ls -la
       
