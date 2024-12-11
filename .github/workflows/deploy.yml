@@ -50,6 +50,16 @@ jobs:
           source: "./docker-compose.yaml" # Path to your local Kubernetes manifest file
           target: "~/apps/resume_parser" # Path on the EC2 instance where you want to copy the file
 
+      - name: Connect to EC2 and copy .env file
+        uses: appleboy/scp-action@v0.1.7 # GitHub Action to SCP files to remote server
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }} # Public IP of your EC2 instance
+          username: ubuntu # Adjust based on your EC2 AMI
+          key: ${{ secrets.EC2_PEM }}
+          port: 22
+          source: "./.env" # Path to your local Kubernetes manifest file
+          target: "~/apps/resume_parser" # Path on the EC2 instance where you want to copy the file
+
       - name: Connect to EC2 and apply docker-compose file
         uses: appleboy/ssh-action@v0.1.7
         with:
