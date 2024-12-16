@@ -53,7 +53,7 @@ The **Resume Parser API** is a Flask-based web application designed to parse res
         "message": "Welcome to the Resume Parser API!",
         "status": "healthy",
         "upload_folder_accessible": true,
-        "version": "1.0.1"
+        "version": "<api-version>"
       }
       ```
 - **Error** (`500 Internal Server Error`):
