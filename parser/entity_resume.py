@@ -30,6 +30,7 @@ def extract_text_from_file(file_name):
 # Prompt template
 prompt_template = """
 Extract the following details from the given resume text in a structured JSON format:
+FOR date, start_date and end_date: If specified, Turn them into A DATETIME ISO format e.g. (2024-12-15T14:30:00+00:00), if only month and year or just year, add the first or last day and month
 {{
     "first_name": "",
     "last_name": "",
@@ -47,8 +48,8 @@ Extract the following details from the given resume text in a structured JSON fo
         {{
             "degree": "",
             "institution": "",
-            "start_year": "",
-            "end_year": ""
+            "start_date": "",
+            "end_date": ""
         }}
     ],
     "work_experience": [
@@ -66,7 +67,7 @@ Extract the following details from the given resume text in a structured JSON fo
         {{
           "name": "",
           "code": "",
-          "date": ""  
+          "date": ""
         }}
     ],
     "awards": [],
@@ -77,7 +78,6 @@ Resume Text: {text}
 """
 
 
-# Main logic
 def parse_resume(filename):
     # Extract text from the PDF
     resume_text = extract_text_from_file(filename)

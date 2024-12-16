@@ -20,7 +20,7 @@ app = create_app()
 # Define upload folder
 
 UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
-APP_VERSION = "1.0.2"
+APP_VERSION = "1.0.3"
 
 
 def convert_pdf_to_docx(pdf_path):
@@ -29,7 +29,7 @@ def convert_pdf_to_docx(pdf_path):
     """
     docx_path = pdf_path.replace(".pdf", ".docx")
     cv = Converter(pdf_path)
-    cv.convert(docx_path)  # Converts the whole document
+    cv.convert(docx_path)
     return docx_path
 
 
@@ -42,7 +42,6 @@ def health_check():
         JSON response with status and additional system information
     """
     try:
-        # You can add more detailed health checks here
         health_info = {
             "status": "healthy",
             "message": "Welcome to the Resume Parser API!",
@@ -89,6 +88,7 @@ def upload_cv():
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
 
+    # Get the parsed resume data from Claude
     parsed_resume = parse_resume(file_path)
 
     try:
