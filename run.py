@@ -4,7 +4,6 @@ from json import JSONDecodeError
 
 from dotenv import load_dotenv
 from flask import request, jsonify
-from pdf2docx import Converter
 from pydantic import ValidationError
 from werkzeug.utils import secure_filename
 
@@ -20,17 +19,7 @@ app = create_app()
 # Define upload folder
 
 UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
-APP_VERSION = "1.0.3"
-
-
-def convert_pdf_to_docx(pdf_path):
-    """
-    Convert a PDF file to DOCX format using pdf2docx library.
-    """
-    docx_path = pdf_path.replace(".pdf", ".docx")
-    cv = Converter(pdf_path)
-    cv.convert(docx_path)
-    return docx_path
+APP_VERSION = "1.0.4"
 
 
 @app.route("/", methods=["GET"])
@@ -93,7 +82,7 @@ def upload_cv():
 
     try:
         response = json.loads(parsed_resume)
-    except JSONDecodeError as e:
+    except JSONDecodeError:
         return (
             jsonify(
                 {"error": "Error parsing the resume. Please try again or use another."}
