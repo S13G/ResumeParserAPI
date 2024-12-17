@@ -62,6 +62,9 @@ REQUIREMENTS:
 DON'TS:
 DONT OMIT ANYTHING PARSED FROM THE RESUME TEXT!!!!!
 
+DATA:
+Resume Text: {text}
+
 JSON FORMAT:
 {{
     "first_name": "",
@@ -108,7 +111,7 @@ JSON FORMAT:
     "interests": []
 }}
 
-Resume Text: {text}
+Ensure all string tags are properly closed, and the output is a valid JSON object. ALWAYS RETURN VALID JSON ONLY.
 """
 
 
