@@ -1,9 +1,9 @@
 import json
 import os
 
-import fitz
-from docx import Document
-from docx.shared import Pt
+import fitz  # noqa
+from docx import Document  # noqa
+from docx.shared import Pt  # noqa
 from dotenv import load_dotenv
 from flask import request, jsonify
 from pydantic import ValidationError
