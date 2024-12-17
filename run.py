@@ -1,7 +1,9 @@
 import json
 import os
-from json import JSONDecodeError
 
+import fitz
+from docx import Document
+from docx.shared import Pt
 from dotenv import load_dotenv
 from flask import request, jsonify
 from pydantic import ValidationError
@@ -17,19 +19,59 @@ load_dotenv()
 app = create_app()
 
 # Define upload folder
-
 UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
-APP_VERSION = "1.0.4"
+APP_VERSION = "1.0.5"
+
+
+def convert_pdf_to_docx(pdf_path):
+    """
+    Convert PDF to DOCX by extracting text using PyMuPDF and creating a new DOCX file
+    """
+    try:
+        # Open the PDF
+        pdf_document = fitz.open(pdf_path)
+
+        # Extract text from all pages
+        full_text = ""
+        for page in range(len(pdf_document)):
+            page = pdf_document.load_page(page)
+            full_text += page.get_text() + "\n\n"
+
+        # Close the PDF document
+        pdf_document.close()
+
+        # Create a new DOCX document
+        docx_path = pdf_path.replace(".pdf", ".docx")
+        doc = Document()
+
+        # Add text to the document
+        paragraph = doc.add_paragraph()
+        paragraph.style = "Normal"
+        run = paragraph.add_run(full_text)
+
+        # Optional: Set font and size
+        font = run.font
+        font.name = "Calibri"  # noqa
+        font.size = Pt(11)
+
+        # Save the DOCX file
+        doc.save(docx_path)
+
+        return docx_path
+
+    except Exception as e:  # noqa
+        return (
+            jsonify(
+                {
+                    "error": f"Empty resume parsing result. Please try again or use another."
+                }
+            ),
+            400,
+        )
 
 
 @app.route("/", methods=["GET"])
 def health_check():
-    """
-    Health check endpoint to verify the application is running.
-
-    Returns:
-        JSON response with status and additional system information
-    """
     try:
         health_info = {
             "status": "healthy",
@@ -77,15 +119,38 @@ def upload_cv():
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
 
-    # Get the parsed resume data from Claude
-    parsed_resume = parse_resume(file_path)
-
     try:
-        response = json.loads(parsed_resume)
-    except JSONDecodeError:
+        # Check file extension and convert if it's a PDF
+        if filename.lower().endswith(".pdf"):
+            # Convert PDF to DOCX
+            docx_path = convert_pdf_to_docx(file_path)
+
+            # Parse the DOCX file
+            parsed_resume = parse_resume(docx_path)
+
+            # Remove the converted DOCX file
+            if os.path.exists(docx_path):
+                os.remove(docx_path)
+        else:
+            # If not a PDF, parse the original file
+            parsed_resume = parse_resume(file_path)
+
+        # Clean and parse the resume
+        cleaned_resume = parsed_resume.strip()
+
+        # If the cleaned string is empty, raise an error
+        if not cleaned_resume:
+            raise ValueError("Empty resume parsing result")
+
+        # Try parsing the JSON
+        response = json.loads(cleaned_resume)
+
+    except Exception as e:
         return (
             jsonify(
-                {"error": "Error parsing the resume. Please try again or use another."}
+                {
+                    "error": f"Error parsing the resume: {str(e)}. Please try again or use another."
+                }
             ),
             400,
         )
