@@ -125,3 +125,62 @@ The **Resume Parser API** is a Flask-based web application designed to parse res
 ```bash
 curl -X POST http://127.0.0.1:5000/upload \
 -F "file=@resume.pdf"
+```
+
+## Local Setup
+
+### Clone the Repository
+
+```bash
+# Clone the repository
+git clone https://github.com/S13G/resume-parser-api.git
+
+# Navigate to the project directory
+cd resume-parser-api
+
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# On Windows
+venv\Scripts\activate
+
+# On macOS/Linux
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.
+```
+
+### Create a `.env` FILE
+
+```bash
+# Add the following requirements
+ANTHROPIC_API_KEY=your_anthropic_api_key
+# Add any other necessary environment variables
+```
+
+### Run the Application
+
+```bash
+# Run the application
+python run.py
+```
+
+## Docker Setup
+
+```bash
+# Build the Docker image
+docker build -t resume-parser-api .
+
+# Run the Docker container
+docker run -p 5000:5000 resume-parser-api
+
+# OR
+
+# Build the Docker image
+docker-compose build
+
+# Run the application
+docker-compose up
+```
