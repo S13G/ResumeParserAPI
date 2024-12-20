@@ -20,12 +20,13 @@ services:
       - ./.env
     ports:
       - "5200:5000"
-    command: >
-      gunicorn --bind 0.0.0.0:5000 'run:app'
-    volumes:
-      - .:/parser
+    networks:
+      - proxy
+    # command: >
+    #   gunicorn --bind 0.0.0.0:5000 'run:app'
+    # volumes:
+    #   - .:/parser
 
 networks:
-  default:
-    external:
-      name: proxy
+  proxy:
+    external: true
