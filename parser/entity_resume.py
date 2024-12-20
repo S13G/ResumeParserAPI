@@ -59,6 +59,7 @@ REQUIREMENTS:
     Zoom, Slack, and Microsoft Teams)." TO THE SUMMARY.'
     DONT FORGET TO STILL GET THE TOOLS FROM THE SUMMARY AND POPULATE THE TOOLS SECTION IN THE JSON.
 10. If no end date for a particular work experience, put 'Present' as the end date. or if you see 'present' or other similar words e.g. 'now' in the resume text, put 'Present' as the end date.
+
 DON'TS:
 DONT OMIT ANYTHING PARSED FROM THE RESUME TEXT!!!!!
 

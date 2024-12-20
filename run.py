@@ -20,7 +20,7 @@ app = create_app()
 
 # Define upload folder
 UPLOAD_FOLDER = app.config["UPLOAD_FOLDER"]
-APP_VERSION = "1.0.7"
+APP_VERSION = "1.0.8"
 
 
 @app.route("/", methods=["GET"])
